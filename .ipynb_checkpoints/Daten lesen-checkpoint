@@ -1,0 +1,31 @@
+import pandas as pd
+
+# Daten von Windfarm A lesen
+# Die Spalten sind mit Semikolon (;) getrennt
+file_path = 'Wind Farm A\\Wind Farm A\\datasets\\3.csv'  # Pfad zur Datei anpassen
+
+df = pd.read_csv(file_path, sep=';')
+
+# Pandas Optionen für bessere Anzeige
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', 10)
+pd.set_option('display.width', None)
+pd.set_option('display.max_colwidth', None)
+
+# Daten strukturiert anzeigen
+print("=" * 80)
+print("DATAFRAME-INFORMATIONEN")
+print("=" * 80)
+print(df.info())
+
+print("\n" + "=" * 80)
+print("ERSTE 10 ZEILEN")
+print("=" * 80)
+print(df.head(10).to_string())
+
+print("\n" + "=" * 80)
+print("ZUSAMMENFASSUNG")
+print("=" * 80)
+print(f"Shape: {df.shape}")
+print(f"Spalten: {df.columns.tolist()}")
+print(f"\nDatentypen:\n{df.dtypes}")
