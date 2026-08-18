@@ -1,0 +1,22 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+#the datasets 14, 38, 45 and 84 are the datasets for the turbine with asset_id = 13.
+
+df14 = pd.read_csv("Wind Farm A\\datasets\\14.csv", parse_dates=True, sep=";")
+df38 = pd.read_csv("Wind Farm A\\datasets\\38.csv", parse_dates=True, sep=";")
+df45 = pd.read_csv("Wind Farm A\\datasets\\45.csv", parse_dates=True, sep=";")
+df84 = pd.read_csv("Wind Farm A\\datasets\\84.csv", parse_dates=True, sep=";")
+
+df_t13 = pd.concat([df14, df38, df45, df84], ignore_index=True)
+
+
+df_t13_sorted = df_t13.sort_values(by="time_stamp")
+df_t13_sorted.to_csv("Wind Farm A\\datasets\\t13_sorted.csv", index=False, sep=";")
+df_t13.to_csv("Wind Farm A\\datasets\\t13.csv", index=False, sep=";")
+
+print("Shape:",df_t13.shape)
+print("First 5 rows:")
+print(df_t13_sorted.head())
+print(df_t13_sorted.tail())
