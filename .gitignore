@@ -1,0 +1,18 @@
+# Virtual environment
+# vro-tf/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Data files (do not commit large CSVs)
+# data/raw/*.csv
+# data/processed/*.csv
+Wind Farm A/datasets/turbine_data/
+
+# VS Code (optional, keep workspace clean)
+.vscode/
+
+# OS files
+Thumbs.db
+.DS_Store

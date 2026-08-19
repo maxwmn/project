@@ -9,14 +9,27 @@ df10 = pd.read_csv("Wind Farm A\\datasets\\10.csv", parse_dates=True, sep=";")
 df17 = pd.read_csv("Wind Farm A\\datasets\\17.csv", parse_dates=True, sep=";")
 df40 = pd.read_csv("Wind Farm A\\datasets\\40.csv", parse_dates=True, sep=";")
 df42 = pd.read_csv("Wind Farm A\\datasets\\42.csv", parse_dates=True, sep=";")
-df_t10 = pd.concat([df3, df10, df17, df40, df42], ignore_index=True)
+
+#label the datasets with their respective event_id
+df3_labeled = df3.copy()
+df3_labeled['event_id'] = 3
+df10_labeled = df10.copy()
+df10_labeled['event_id'] = 10
+df17_labeled = df17.copy()
+df17_labeled['event_id'] = 17
+df40_labeled = df40.copy()
+df40_labeled['event_id'] = 40
+df42_labeled = df42.copy()
+df42_labeled['event_id'] = 42
+
+df_t10 = pd.concat([df3_labeled, df10_labeled, df17_labeled, df40_labeled, df42_labeled], ignore_index=True)
 
 
-df_t10_sorted = df_t10.sort_values(by="time_stamp")
-df_t10_sorted.to_csv("Wind Farm A\\datasets\\t10_sorted.csv", index=False, sep=";")
+
 df_t10.to_csv("Wind Farm A\\datasets\\t10.csv", index=False, sep=";")
 
 print("Shape:",df_t10.shape)
-print("First 5 rows:")
-print(df_t10_sorted.head())
-print(df_t10_sorted.tail())
+print("Head:")
+print(df_t10.head())
+print("Tail:")
+print(df_t10.tail())
