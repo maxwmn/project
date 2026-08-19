@@ -26,7 +26,7 @@ df_t10 = pd.concat([df3_labeled, df10_labeled, df17_labeled, df40_labeled, df42_
 
 
 
-df_t10.to_csv("Wind Farm A\\datasets\\t10.csv", index=False, sep=";")
+df_t10.to_csv("Wind Farm A\\turbine_data\\t10.csv", index=False, sep=";")
 
 print("Shape:",df_t10.shape)
 print("Head:")

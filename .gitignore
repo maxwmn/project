@@ -1,14 +1,10 @@
-# Virtual environment
-# vro-tf/
-
 # Python cache
 __pycache__/
 *.pyc
 
-# Data files (do not commit large CSVs)
-# data/raw/*.csv
-# data/processed/*.csv
-Wind Farm A/datasets/turbine_data/
+# big Data files
+Wind Farm A/turbine_data/
+data_cleaning/
 
 # VS Code (optional, keep workspace clean)
 .vscode/
