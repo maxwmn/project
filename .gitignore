@@ -14,5 +14,5 @@ Wind Farm A/datasets/turbine_data/
 .vscode/
 
 # OS files
-Thumbs.db
-.DS_Store
+# Thumbs.db
+# .DS_Store
