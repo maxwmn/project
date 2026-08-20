@@ -5,6 +5,8 @@ __pycache__/
 # big Data files
 Wind Farm A/turbine_data/
 data_cleaning/
+analysis_output/
+
 
 # VS Code (optional, keep workspace clean)
 .vscode/
