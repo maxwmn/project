@@ -15,6 +15,7 @@ The overall analytical concept, decisions on which methods to apply, and the int
 | 3 | Request to add the option to remove entire columns (e.g. sensor_31, due to over 50% implausible values) | AI added a configurable list of columns to exclude from the dataset |
 | 4 | Request to add further descriptive information to the report (time range, status_type_id distribution, constant columns) and to link event metadata (`event_info.csv`) to each report via filename/event ID | AI implemented the corresponding report sections and the event metadata lookup |
 
+~TN| 5 | Modified te script so that the cleaned .csv files are saved as [name]_cleaned.csv. Also modified event_analysis to for continuity.
 
 ---
 
