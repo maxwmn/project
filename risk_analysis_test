@@ -1,0 +1,19 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from src import data_loading as dl
+from src import data_cleaning as dc
+from src import clustering_models as cm
+from src import visualization as viz
+from src import evaluation as ev
+from pathlib import Path
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+
+
+data = dl.load_data("data_cleaning/cleaned_data/0_cleaned.csv")
+feature_columns = dl.get_input_feature_columns()
+
+features = dc.select_features(data, feature_columns)
+
+fig = viz.plot_feature_distributions(features)

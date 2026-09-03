@@ -1,77 +1,54 @@
-"""Functions for loading the datasets.
+"""
+data_loading.py
 
-These functions load the CSV files and give a quick overview of the
-data. They keep the loading logic in one place so the notebooks stay
-short.
+Simple functions for loading the water treatment plant dataset.
+Each function does one clear job.
 """
 
 import pandas as pd
 
-from src import config
 
-
-def load_csv(path):
-    """Load a CSV file and print basic information about it.
+def load_data(csv_path):
+    """
+    Load the water treatment plant CSV file into a pandas DataFrame.
 
     Parameters
     ----------
-    path : str or Path
-        Path to the CSV file.
+    csv_path : str
+        Path to the CSV file, for example "../data/water_treatment_plant.csv".
 
     Returns
     -------
     pandas.DataFrame
-        The loaded data.
+        The full dataset, one row per day.
     """
-    df = pd.read_csv(path)
-    print("Loaded file:", path)
-    print("Rows:", df.shape[0], "Columns:", df.shape[1])
-    return df
+    data = pd.read_csv(csv_path)
+    return data
 
 
-def load_air_quality():
-    """Load the air quality dataset from data/raw.
+def get_input_feature_columns():
+    """
+    Return the list of input feature columns we use for clustering.
+
+    These columns all end in "-E", meaning they describe the water
+    arriving at the plant (the plant input). We cluster on the incoming
+    water because that is the challenge the plant has to deal with, and
+    it is the easiest part to interpret.
 
     Returns
     -------
-    pandas.DataFrame
-        The air quality data.
+    list of str
+        The names of the 9 input feature columns.
     """
-    return load_csv(config.AIR_QUALITY_FILE)
-
-
-def load_power():
-    """Load the household power dataset from data/raw.
-
-    Returns
-    -------
-    pandas.DataFrame
-        The power data.
-    """
-    return load_csv(config.POWER_FILE)
-
-
-def quick_check(df):
-    """Return a small dictionary that describes the data.
-
-    The dictionary contains the shape, the column names, the number of
-    missing values per column, and the first rows. This is useful for a
-    fast first look at any dataset.
-
-    Parameters
-    ----------
-    df : pandas.DataFrame
-        The data to check.
-
-    Returns
-    -------
-    dict
-        Keys: shape, columns, missing_values, head.
-    """
-    info = {
-        "shape": df.shape,
-        "columns": list(df.columns),
-        "missing_values": df.isna().sum(),
-        "head": df.head(),
-    }
-    return info
+    input_features = [
+        "Q-E",     # incoming flow
+        "ZN-E",    # incoming zinc
+        "PH-E",    # incoming pH
+        "DBO-E",   # incoming biochemical oxygen demand (organic load)
+        "DQO-E",   # incoming chemical oxygen demand (organic load)
+        "SS-E",    # incoming suspended solids
+        "SSV-E",   # incoming volatile suspended solids (percent)
+        "SED-E",   # incoming sediments
+        "COND-E",  # incoming conductivity
+    ]
+    return input_features

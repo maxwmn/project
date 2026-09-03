@@ -1,99 +1,78 @@
-"""Functions for evaluating regression models.
+"""
+evaluation.py
 
-These functions calculate metrics, evaluate a single model, and
-compare several models on the same training and test data.
+Functions that help us choose a sensible number of clusters (K).
+We use two simple tools: the elbow method and the silhouette score.
 """
 
-import numpy as np
-import pandas as pd
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
 
 
-def regression_metrics(y_true, y_pred):
-    """Calculate MAE, RMSE, and R2 for regression predictions.
+def compute_inertia_for_range(scaled_values, k_values, random_state=42):
+    """
+    Run K-Means for several values of K and record the inertia each time.
 
-    MAE is the average absolute error.
-    RMSE punishes large errors more strongly than MAE.
-    R2 shows how much variation the model explains compared with always
-    predicting the average value.
+    "Inertia" is scikit-learn's name for the distortion cost J from the
+    lecture: the total squared distance from each point to its own
+    centroid. Lower inertia means tighter groups. We plot these values
+    later to look for an elbow.
 
     Parameters
     ----------
-    y_true : array-like
-        The real target values.
-    y_pred : array-like
-        The values predicted by the model.
+    scaled_values : numpy.ndarray
+        The standardized features.
+    k_values : list of int
+        The values of K to try, for example range(1, 9).
+    random_state : int
+        A fixed seed so results are repeatable.
 
     Returns
     -------
-    dict
-        Keys: MAE, RMSE, R2.
+    list of float
+        The inertia for each K, in the same order as k_values.
     """
-    mae = mean_absolute_error(y_true, y_pred)
-    # We compute RMSE as the square root of the mean squared error.
-    # This works the same way across all scikit-learn versions.
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-    r2 = r2_score(y_true, y_pred)
-    return {"MAE": mae, "RMSE": rmse, "R2": r2}
+    inertia_list = []
+    for k in k_values:
+        model = KMeans(n_clusters=k, n_init=10, random_state=random_state)
+        model.fit(scaled_values)
+        inertia_list.append(model.inertia_)
+    return inertia_list
 
 
-def evaluate_regression_model(name, model, X_train, X_test, y_train, y_test):
-    """Fit a model, predict on the test set, and return its metrics.
+def compute_silhouette_for_range(scaled_values, k_values, random_state=42):
+    """
+    Run K-Means for several values of K and record the silhouette score.
+
+    The silhouette score asks, for each point, whether it sits well inside
+    its own group or near the border with another group. The average score
+    ranges from about -1 to 1, where higher is better. We skip K=1 because
+    the silhouette score needs at least 2 clusters to be defined.
 
     Parameters
     ----------
-    name : str
-        A short name for the model, used in the results.
-    model : estimator
-        A scikit-learn model or pipeline.
-    X_train, X_test : array-like
-        Training and test features.
-    y_train, y_test : array-like
-        Training and test targets.
+    scaled_values : numpy.ndarray
+        The standardized features.
+    k_values : list of int
+        The values of K to try. Values below 2 are ignored.
+    random_state : int
+        A fixed seed so results are repeatable.
 
     Returns
     -------
-    tuple
-        (metrics_dict, y_pred). metrics_dict also contains the model
-        name under the key "Model".
+    tested_k : list of int
+        The K values that were actually scored (2 and above).
+    scores : list of float
+        The average silhouette score for each tested K.
     """
-    # The model only ever learns from the training data.
-    model.fit(X_train, y_train)
-    # We make predictions on the test data the model has not seen.
-    y_pred = model.predict(X_test)
-    metrics = regression_metrics(y_test, y_pred)
-    metrics["Model"] = name
-    return metrics, y_pred
-
-
-def compare_regression_models(models, X_train, X_test, y_train, y_test):
-    """Train several models and collect their metrics in one table.
-
-    Parameters
-    ----------
-    models : dict
-        A dictionary mapping a model name to a scikit-learn model.
-    X_train, X_test : array-like
-        Training and test features.
-    y_train, y_test : array-like
-        Training and test targets.
-
-    Returns
-    -------
-    pandas.DataFrame
-        One row per model with columns Model, MAE, RMSE, and R2,
-        sorted from lowest RMSE to highest RMSE.
-    """
-    rows = []
-    for name, model in models.items():
-        metrics, _ = evaluate_regression_model(
-            name, model, X_train, X_test, y_train, y_test
-        )
-        rows.append(metrics)
-
-    results = pd.DataFrame(rows)
-    # Put the model name first, then the metrics.
-    results = results[["Model", "MAE", "RMSE", "R2"]]
-    # Lower RMSE is better, so we sort by RMSE.
-    results = results.sort_values("RMSE").reset_index(drop=True)
-    return results
+    tested_k = []
+    scores = []
+    for k in k_values:
+        if k < 2:
+            continue
+        model = KMeans(n_clusters=k, n_init=10, random_state=random_state)
+        labels = model.fit_predict(scaled_values)
+        score = silhouette_score(scaled_values, labels)
+        tested_k.append(k)
+        scores.append(score)
+    return tested_k, scores
