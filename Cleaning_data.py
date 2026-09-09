@@ -13,9 +13,12 @@ report_folder = "data_cleaning\\reports"
 event_info_path = "Wind Farm A\\event_info.csv"
  
 # Columns to remove entirely, regardless of what the implausibility check finds
-# (sensor_31 was removed because more than 50% of its values were implausible)
-columns_to_drop = ["sensor_31_avg", "sensor_31_min", "sensor_31_max"]
- 
+# sensor_31 was removed because more than 75% of its values were implausible
+# sensors 46 and 49 were removed because they were constant (no variation) across all events
+columns_to_drop = ["sensor_31_avg", "sensor_31_min", "sensor_31_max", "sensor_46", "sensor_49"]
+
+
+
 os.makedirs(output_folder, exist_ok=True)
 os.makedirs(report_folder, exist_ok=True)
  
