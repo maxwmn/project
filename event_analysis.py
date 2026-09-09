@@ -38,6 +38,8 @@ def load_all_cleaned_files(folder):
     data = {}
     for file_path in files:
         event_id = os.path.splitext(os.path.basename(file_path))[0]
+        if event_id.endswith("_cleaned"):
+            event_id = event_id[: -len("_cleaned")]
         with open(file_path, "r") as f:
             first_line = f.readline()
         sep = ";" if ";" in first_line else ","

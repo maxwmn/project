@@ -15,6 +15,7 @@ The overall analytical concept, decisions on which methods to apply, and the int
 | 3 | Request to add the option to remove entire columns (e.g. sensor_31, due to over 50% implausible values) | AI added a configurable list of columns to exclude from the dataset |
 | 4 | Request to add further descriptive information to the report (time range, status_type_id distribution, constant columns) and to link event metadata (`event_info.csv`) to each report via filename/event ID | AI implemented the corresponding report sections and the event metadata lookup |
 
+~TN| 5 | Modified te script so that the cleaned .csv files are saved as [name]_cleaned.csv. Also modified event_analysis to for continuity.
 
 ---
 
@@ -27,5 +28,17 @@ The overall analytical concept, decisions on which methods to apply, and the int
 | 3 | Feedback that the plot remained hard to read, and the observation that the event duration (start to end) was not visually represented, only the start | AI implemented a colored timeline (one color per status), limited to a window around the event, showing the full event duration as a shaded band |
 | 4 | Request to combine all plots of one turbine into a single document, alongside a normal-condition reference, and to create a combined comparison table across all events | AI implemented `plot_turbine_overview()` and `build_turbine_status_table()`, combining multiple events and the normal baseline into shared figures/tables per turbine |
 | 5 | Request for a summary table across all turbines and events, distinguishing normal, pre-event, and event periods, with a corresponding visualization; the author specified that both an averaged and a per-event version of the visualization should be produced | AI implemented `build_summary_table()` (one row per status/event/turbine, including differences from the normal baseline) and two visualization functions (`plot_summary_overview_averaged()` and `plot_summary_overview_per_event()`) |
+
+---
+
+## 3. Anomaly Detection Scripts
+
+1. Developed `anomaly_detection.py`, a class-balanced Random Forest trained per turbine on the `train` split and evaluated on `prediction`, using `status_type_id` as the anomaly label; a memory-crash investigation surfaced and fixed a bug where `max_samples` was defined but never applied to the model, the actual cause of the failure (accuracy 0.71, F1 0.57 after the fix).
+2. Developed `anomaly_detection_2.0.py`, an XGBoost variant of the same pipeline for comparison, which slightly outperformed the Random Forest (F1 0.59) while relying more heavily on fewer top features.
+3. Documented both scripts with English inline comments explaining each processing step, and reviewed the resulting feature importances against the wind farm's `feature_description.csv`, which showed power- and current-related sensors dominating over temperature sensors.
+4. That pattern raised the concern that the `status_type_id`-based label conflated genuine fault precursors with post-repair service activity; comparing it against each event's actual fault window (`event_start`/`event_end` in `event_info.csv`) confirmed that `status_type_id` remains "Normal Operation" throughout the real fault lead-up, with the "Service" status only appearing afterward.
+5. Corrected the labeling in `anomaly_detection_event_labels.py` using the true event windows, then addressed the resulting lack of positive training examples with `anomaly_detection_turbine_cv.py`, which holds out entire turbines for testing so the model learns from real fault examples on the remaining ones.
+6. Once verified, this corrected labeling and turbine-holdout split were folded back into `anomaly_detection.py` and `anomaly_detection_2.0.py` directly, and the now-redundant `anomaly_detection_event_labels.py` and `anomaly_detection_turbine_cv.py` were deleted.
+7. Asked how precision could be improved; among the suggested options, chose to add trend features - each sensor's deviation from its own trailing 24h average and its 6-hour rate of change - so the model can learn from drift rather than only point-in-time readings. Adding these to both scripts required restructuring the pipeline (processing train and test turbines separately, rather than pooling all 22 at once) to fit this container's limited memory; F1 improved from 0.0004 to 0.031 (Random Forest) and from 0.045 to 0.063 (XGBoost).
 
 

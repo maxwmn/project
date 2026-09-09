@@ -7,10 +7,10 @@ pd.set_option("display.max_columns", None)
 pd.set_option("display.width", None)
  
 # --- Paths and settings ---
-input_folder = "Wind Farm A\\datasets"
-output_folder = "data_cleaning\\cleaned_data"
-report_folder = "data_cleaning\\reports"
-event_info_path = "Wind Farm A\\event_info.csv"
+input_folder = "Wind Farm A/datasets"
+output_folder = "data_cleaning/cleaned_data"
+report_folder = "data_cleaning/reports"
+event_info_path = "Wind Farm A/event_info.csv"
  
 # Columns to remove entirely, regardless of what the implausibility check finds
 # sensor_31 was removed because more than 75% of its values were implausible
@@ -168,7 +168,9 @@ def process_file(file_path, event_info):
         print(f"Wiped-row counts saved to: {replaced_path}")
  
     # Save the cleaned file, keeping the original delimiter (semicolon)
-    output_path = os.path.join(output_folder, file_name)
+    name, ext = os.path.splitext(file_name)
+    cleaned_file_name = f"{name}_cleaned{ext}"
+    output_path = os.path.join(output_folder, cleaned_file_name)
     df.to_csv(output_path, index=False, sep=";", decimal=",")
     print(f"Cleaned file saved to: {output_path}")
  
