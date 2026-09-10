@@ -40,7 +40,7 @@ pd.set_option("display.max_rows", 30)
 CLEANED_DATA_DIR = Path("data_cleaning/cleaned_data")
 EVENT_INFO_PATH = Path("Wind Farm A/event_info.csv")
 FEATURE_DESCRIPTION_PATH = Path("Wind Farm A/feature_description.csv")
-OUTPUT_DIR = Path("analysis_output")
+OUTPUT_DIR = Path("analysis_output/isolation_forest")
 
 # Restrict the model to only the temperature sensors (plus power_curve_deviation
 # and the trend features derived from them). Every supervised run so far has
@@ -312,7 +312,7 @@ def run_sweep(prepared, contamination):
 
 
 def main():
-    OUTPUT_DIR.mkdir(exist_ok=True)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     events = pd.read_csv(EVENT_INFO_PATH, sep=";")
     events["event_start"] = pd.to_datetime(events["event_start"])
