@@ -32,19 +32,33 @@ analysis_output/
     summary_bars_asset<ID>.png
         Per-event status share bar chart, per turbine
 
-######### TIM (deine ordner, falls du welche erstellt hast)
+isolation_forest_output/
+    isolation_forest_contamination_sweep.csv
+        Overall precision/recall/F-beta/lead-time results across all tested contamination values, sorted by F2
+    isolation_forest_per_turbine_contamination_<value>.csv
+        Per-turbine results (precision/recall/F-beta, lead time before event_start) for one contamination value
+    isolation_forest_alarm_feature_explanation_contamination_<value>.csv
+        Top contributing features behind each flagged anomaly, for the best (F2) contamination value
+    isolation_forest_feature_importance_contamination_<value>.csv
+        Overall feature ranking (mean |z-score| pooled across all turbines' alarm rows), for the best (F2) contamination value
+    isolation_forest_f2_score.png
+        F2 score across all tested contamination values, best one highlighted
+    isolation_forest_feature_importance.png
+        Overall most influential features (actual sensor names, not raw column codes)
 
-fusion_of_data_all.ipynb
-    merges all single datasets into one big dataset for each turbine
+
+
+
 clean_data.py
     Cleans the raw SCADA files (see below)
 event_analysis.py
     Runs the status ID analysis
 summarize_implausibility.py
     Aggregates implausibility flags across all events into one table
-
-
-######## TIM (deine dateien und was die machen)
+anomaly_detection_isolation_forest.py
+    Per-turbine Isolation Forest anomaly detection on the cleaned SCADA data
+plot_isolation_forest_results.py
+    Visualizes the best F2 score and the most important features from the Isolation Forest results
 
 README.txt
 
@@ -61,7 +75,12 @@ Aggregates the implausibility flags generated during cleaning into a single over
 3. event_analysis.py
 Loads the cleaned files and event_info.csv, groups them by turbine, and compares the distribution of status_type_id during normal operation, the pre-event window, and the event itself. Produces per-turbine status timelines, bar charts, and a combined summary table across all turbines and events. The pre-event window size (in days) can be adjusted via the PRE_EVENT_WINDOW variable at the top of the script.
 
-####### TIM (deine skripte und was die machen)
+4. anomaly_detection_isolation_forest.py
+Loads the cleaned files, engineers features (power curve deviation, gear ratio deviation, rolling trend deviations), and fits a separate Isolation Forest per turbine on its own "train" rows to flag unusual "prediction" rows. Sweeps several contamination values, evaluates each against the fault windows in event_info.csv (precision/recall/F-beta, lead time before event_start), and reports per-turbine results plus the top contributing features for the best contamination value. Results are written to isolation_forest_output/.
+
+5. plot_isolation_forest_results.py (optional, for visualization)
+Reads the CSVs written by anomaly_detection_isolation_forest.py (no refitting) and produces two standalone charts: the F2 (Fbeta) score across all tested contamination values, with the best one highlighted, and the overall most influential features driving alarms at that contamination (mean |z-score| pooled across all turbines' alarm rows), labeled with their actual sensor descriptions from feature_description.csv rather than the raw anonymized column names. Saves isolation_forest_output/isolation_forest_f2_score.png and isolation_forest_output/isolation_forest_feature_importance.png.
+
 
 ## Requirements
 

@@ -91,3 +91,54 @@ Chronologisches Protokoll: was in den `anomaly_detection`-Skripten gemacht wurde
 - Anderes distanzbasiertes Verfahren (Local Outlier Factor, One-Class SVM) testen, wo Z-Score-Normalisierung tatsächlich einen Unterschied machen würde.
 - Weitere Feature-Auswahl-Experimente (z.B. nur die stärksten Einzelsensoren statt aller Temperaturen).
 - Zeitliche Glättung/Bestätigung (mehrere aufeinanderfolgende auffällige Punkte statt Einzelpunkt-Alarm) zur weiteren Reduktion von Fehlalarmen.
+
+
+Struktur von anomaly_detection_isolation_forest.py (389 Zeilen) mit Zeilenverweisen:
+
+Konfiguration (Zeilen 1–86)
+
+1–18: Modul-Docstring — Kurzbeschreibung des Ansatzes, Verweis auf anomaly_detection_journal.md.
+20–31: Imports.
+34–37: Pfad-Konstanten (CLEANED_DATA_DIR, EVENT_INFO_PATH, FEATURE_DESCRIPTION_PATH, OUTPUT_DIR).
+39–51: Spalten-Konstanten (Zeitstempel, Status, Wind, Leistung, Rotor-/Generatordrehzahl, Pitch).
+53–55: Fenstergrößen für Trend-Features (TREND_WINDOW_24H, TREND_WINDOW_SLOPE_HOURS).
+57–58: Modell-Hyperparameter (N_ESTIMATORS, RANDOM_STATE).
+60–69: FEATURE_SET + FEATURE_SET_EXTRA_COLS-Dict (welche Sensoren das Modell sieht).
+71–73: Z_SCORE_NORMALIZE-Schalter.
+75–79: CONTAMINATION_VALUES (die Sweep-Werte).
+81–83: FBETA_WEIGHT (β=√2).
+85–86: TOP_N_ALARM_FEATURES.
+
+TurbineData (Zeilen 89–95)
+
+NamedTuple-Container für die aufbereiteten Daten einer Turbine.
+
+Feature-Engineering (Zeilen 98–138)
+
+98–103: get_temperature_avg_columns — Temperatursensoren aus feature_description.csv.
+106–115: add_power_curve_deviation — Leistungskurven-Abweichung.
+117–126: add_gear_ratio_deviation — Getriebeverhältnis-Abweichung.
+128–138: add_trend_features — 24h-Abweichung + 6h-Steigung pro Sensor.
+
+Daten laden & aufbereiten (Zeilen 140–226)
+
+140–166: load_and_label_turbine — CSV laden, Features anhängen, Zeilen labeln.
+169–178: evaluate — accuracy/precision/recall/f1/fbeta berechnen.
+181–226: prepare_turbine_data — alle Turbinen einmalig laden, Feature-Auswahl, Median-Fill, Normalisierung, Liste von TurbineData zurückgeben.
+
+Modell & Bewertung (Zeilen 228–308)
+
+228–236: compute_lead_time_minutes — Vorlaufzeit-Kennzahl.
+240–248: fit_predict — IsolationForest trainieren + vorhersagen (gemeinsame Stelle für Sweep und Erklärung).
+251–278: explain_alarm_features — Top-Features pro Alarm (Erklärbarkeit).
+281–308: run_sweep — ein contamination-Wert über alle Turbinen laufen lassen, Metriken + Vorlaufzeit-Zusammenfassung.
+
+Ablaufsteuerung (Zeilen 311–389)
+
+311–320: Events laden, CSV-Pfade sammeln.
+322–328: Feature-Set gemäß FEATURE_SET bestimmen.
+330–332: prepare_turbine_data aufrufen.
+334–348: Sweep über CONTAMINATION_VALUES, Per-Turbine-CSVs schreiben.
+350–370: Sweep-Ergebnisse sortieren/speichern, besten Wert ausgeben.
+372–384: explain_alarm_features für die beste contamination ausführen und speichern.
+388–389: if __name__ == "__main__": main().
